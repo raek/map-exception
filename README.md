@@ -6,13 +6,13 @@ This lib is available on Clojars: [map-exception "1.0.0-SNAPSHOT"]
 
 # Syntax Examples
 
-    (use '[se.raek.map-exception :only (try+ throw+ try-multi try-multi-hierarchy)])
+    (use '[se.raek.map-exception :only (try+ throw-map try-multi try-multi-hierarchy)])
     
     (defn do-something []
       (println "in the finally clause"))
     
     (defn throwing-code []
-      (throw+ {:type ::foo-error, :message "Invalid Foo"}))
+      (throw-map {:type ::foo-error, :message "Invalid Foo"}))
     
     (try+
       (throwing-code)
@@ -28,7 +28,7 @@ This lib is available on Clojars: [map-exception "1.0.0-SNAPSHOT"]
         (do-something)))
     
     (defn other-throwing-code []
-      (throw+ {:message "Some message.", :a 1, :b 2, :c 3}))
+      (throw-map {:message "Some message.", :a 1, :b 2, :c 3}))
     
     (try-multi (juxt :a :b :c)
       (other-throwing-code)

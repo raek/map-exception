@@ -126,6 +126,12 @@
 (defmacro throw+ [throwable-or-map]
   `(throw (wrap-map-in-exception ~throwable-or-map)))
 
+(defmacro throw-map [m]
+  `(throw (PersistentMapException. ~m)))
+
+(defn map-exception [m]
+  (PersistentMapException. m))
+
 (definline wrap-map-in-exception [throwable-or-map]
   `(let [throwable-or-map# ~throwable-or-map]
      (condp instance? throwable-or-map#
