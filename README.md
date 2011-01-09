@@ -1,6 +1,6 @@
 # map-exception
 
-Use maps as exceptions. See this thread for background: http://groups.google.com/group/clojure-dev/browse_thread/thread/734ee59f6cbc1b55/5f975739698fbb8c
+Use maps as exceptions. This is a exploratory implementation of what an error handling library could look like. For the whole story, please see http://dev.clojure.org/display/design/Error+Handling
 
 This lib is available on Clojars: [map-exception "1.0.0-SNAPSHOT"]
 
