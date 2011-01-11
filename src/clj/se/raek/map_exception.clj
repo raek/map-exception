@@ -4,8 +4,8 @@
 
 
 
-(declare analyze-try+-body analyze-try-map-body analyze-try-multi-body
-         try+-error-message try-multi-error-message
+(declare analyze-try+-body analyze-try-map-body
+         try+-error-message try-map-error-message try-multi-error-message
          expr? catch-clause? host-type?
          map-catch-clause? host-catch-clause? finally-clause?)
 
@@ -47,7 +47,7 @@
   {:arglists ['(dispatch-fn expr* catch-clause* finaly-clause?)]}
   [dispatch-fn & body]
   (if-let [[exprs catch-clauses finally-clause]
-           (analyze-try-multi-body body)]
+           (analyze-try-map-body body)]
     `(try
        ~@exprs
        ~@(when (seq catch-clauses)
