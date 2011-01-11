@@ -27,6 +27,22 @@ This lib is available on Clojars: [map-exception "1.0.0-SNAPSHOT"]
       (finally
         (do-something)))
     
+    ;; The above expands to:
+    
+    (try
+      (try-map
+        (throwing-code)
+        (catch ::foo-error m
+          (str "got a foo error: " (:message m)))
+        (catch ::bar-error m
+          (str "got a bar error: " (:message m))))
+      (catch RuntimeException e
+        (str "got a runtime exception: " (.getMessage e)))
+      (catch Exception e
+        (str "got an exception: " (.getMessage e)))
+      (finally
+        (do-something)))
+    
     (defn other-throwing-code []
       (throw-map {:message "Some message.", :a 1, :b 2, :c 3}))
     

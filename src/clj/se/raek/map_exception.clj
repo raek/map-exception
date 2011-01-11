@@ -4,15 +4,16 @@
 
 
 
-(declare analyze-body analyze-multi-body
+(declare analyze-try+-body analyze-try-map-body analyze-try-multi-body
          try+-error-message try-multi-error-message
          expr? catch-clause? host-type?
          map-catch-clause? host-catch-clause? finally-clause?)
 
-(defmacro try+
+(defmacro try-map
   {:arglists ['(expr* map-catch-clause* host-catch-claus* finally-clause?)]}
   [& body]
-  (if-let [[exprs map-catch-clauses host-catch-clauses finally-clause] (analyze-body body)]
+  (if-let [[exprs map-catch-clauses finally-clause]
+           (analyze-try-map-body body)]
     `(try
        ~@exprs
        ~@(when (seq map-catch-clauses)
@@ -26,6 +27,18 @@
                                    ~@clause-body)])
                         map-catch-clauses)
                      (throw e#))))]))
+       ~@finally-clause)
+    (throw (Exception. try-map-error-message))))
+
+(defmacro try+
+  {:arglists ['(expr* map-catch-clause* host-catch-claus* finally-clause?)]}
+  [& body]
+  (if-let [[exprs map-catch-clauses host-catch-clauses finally-clause]
+           (analyze-try+-body body)]
+    `(try
+       (try-map
+         ~@exprs
+         ~@map-catch-clauses)
        ~@host-catch-clauses
        ~@finally-clause)
     (throw (Exception. try+-error-message))))
@@ -33,7 +46,8 @@
 (defmacro try-multi
   {:arglists ['(dispatch-fn expr* catch-clause* finaly-clause?)]}
   [dispatch-fn & body]
-  (if-let [[exprs catch-clauses finally-clause] (analyze-multi-body body)]
+  (if-let [[exprs catch-clauses finally-clause]
+           (analyze-try-multi-body body)]
     `(try
        ~@exprs
        ~@(when (seq catch-clauses)
@@ -53,7 +67,8 @@
 (defmacro try-multi-hierarchy
   {:arglists ['(dispatch-fn hierarchy expr* catch-clause* finaly-clause?)]}
   [dispatch-fn hierarchy & body]
-  (if-let [[exprs catch-clauses finally-clause] (analyze-multi-body body)]
+  (if-let [[exprs catch-clauses finally-clause]
+           (analyze-try-map-body body)]
     `(try
        ~@exprs
        ~@(when (seq catch-clauses)
@@ -70,7 +85,7 @@
        ~@finally-clause)
     (throw (Exception. try-multi-error-message))))
 
-(defn- analyze-body [body]
+(defn- analyze-try+-body [body]
   (let [[exprs              body2] (split-with expr? body)
         [map-catch-clauses  body3] (split-with map-catch-clause? body2)
         [host-catch-clauses body4] (split-with host-catch-clause? body3)
@@ -78,7 +93,7 @@
     (when-not (or (seq body5) (next finally-clauses))
       [exprs map-catch-clauses host-catch-clauses finally-clauses])))
 
-(defn- analyze-multi-body [body]
+(defn- analyze-try-map-body [body]
   (let [[exprs           body2] (split-with expr? body)
         [catch-clauses   body3] (split-with catch-clause? body2)
         [finally-clauses body4] (split-with finally-clause? body3)]
@@ -87,6 +102,9 @@
 
 (def ^{:private true} try+-error-message
   "A try+ form must follow the pattern (try+ expr* map-catch-clause* host-catch-clause* finally-clause?)")
+
+(def ^{:private true} try-map-error-message
+  "A try-map form must follow the pattern (try+ expr* map-catch-clause* finally-clause?)")
 
 (def ^{:private true} try-multi-error-message
   "A try-multi form must follow the pattern (try-multi dispatch-fn expr* catch-clause* finally-clause?)")
